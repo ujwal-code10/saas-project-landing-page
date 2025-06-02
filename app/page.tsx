@@ -1,8 +1,7 @@
 "use client"
 
 import type React from "react"
-
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import {
   ArrowRight,
   CheckCircle,
@@ -15,6 +14,9 @@ import {
   Linkedin,
   Github,
   Mail,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -22,7 +24,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 const fadeInUp = {
   initial: { opacity: 0, y: 60 },
@@ -53,6 +55,16 @@ const staggerContainer = {
 export default function ProjectManagementLanding() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0)
   const [email, setEmail] = useState("")
+  const [isYearlyBilling, setIsYearlyBilling] = useState(false)
+  const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null)
+  const [emailError, setEmailError] = useState("")
+
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId)
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" })
+    }
+  }
 
   const features = [
     {
@@ -82,6 +94,7 @@ export default function ProjectManagementLanding() {
     {
       name: "Basic",
       price: "Free",
+      yearlyPrice: "Free",
       description: "Perfect for small teams getting started",
       features: ["Up to 5 team members", "3 projects", "Basic reporting", "Email support"],
       cta: "Get Started",
@@ -90,7 +103,8 @@ export default function ProjectManagementLanding() {
     {
       name: "Pro",
       price: "$29",
-      period: "/month",
+      yearlyPrice: "$290",
+      period: isYearlyBilling ? "/year" : "/month",
       description: "Best for growing teams and businesses",
       features: [
         "Up to 50 team members",
@@ -105,6 +119,7 @@ export default function ProjectManagementLanding() {
     {
       name: "Enterprise",
       price: "Custom",
+      yearlyPrice: "Custom",
       description: "For large organizations with specific needs",
       features: [
         "Unlimited team members",
@@ -139,18 +154,47 @@ export default function ProjectManagementLanding() {
     },
   ]
 
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId)
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" })
+  const faqs = [
+    {
+      question: "How does the free trial work?",
+      answer: "Our 14-day free trial gives you full access to all features. No credit card required. At the end of the trial, you can choose to upgrade to a paid plan or continue with the basic free plan."
+    },
+    {
+      question: "Can I change my plan later?",
+      answer: "Yes, you can upgrade, downgrade, or cancel your plan at any time. Changes take effect at the start of the next billing cycle."
+    },
+    {
+      question: "What kind of support do you offer?",
+      answer: "We offer email support for all plans, with priority support for Pro users and dedicated support for Enterprise customers. Our average response time is under 2 hours."
+    },
+    {
+      question: "Is there a limit on team members?",
+      answer: "The Basic plan supports up to 5 team members, Pro plan up to 50 members, and Enterprise plan has unlimited team members."
     }
-  }
+  ]
+
+  // Auto-scroll testimonials
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [])
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle newsletter submission
+    if (!validateEmail(email)) {
+      setEmailError("Please enter a valid email address")
+      return
+    }
+    setEmailError("")
     console.log("Newsletter signup:", email)
     setEmail("")
+  }
+
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return re.test(email)
   }
 
   return (
@@ -194,14 +238,18 @@ export default function ProjectManagementLanding() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
-                Sign In
-              </Button>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button size="sm" className="bg-accent hover:bg-accent/90 text-white">
-                  Get Started
+              <Link href="/signin">
+                <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
+                  Sign In
                 </Button>
-              </motion.div>
+              </Link>
+              <Link href="/signup">
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button size="sm" className="bg-accent hover:bg-accent/90 text-white">
+                    Get Started
+                  </Button>
+                </motion.div>
+              </Link>
             </div>
           </div>
         </div>
@@ -225,7 +273,11 @@ export default function ProjectManagementLanding() {
               </motion.p>
               <motion.div variants={fadeInLeft}>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button size="lg" className="bg-accent hover:bg-accent/90 text-white px-8 py-4 text-lg">
+                  <Button
+                    onClick={() => scrollToSection("features")}
+                    size="lg"
+                    className="bg-accent hover:bg-accent/90 text-white px-8 py-4 text-lg"
+                  >
                     Get Started
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
@@ -246,13 +298,21 @@ export default function ProjectManagementLanding() {
               <div className="relative mx-auto w-full max-w-lg">
                 <div className="absolute top-0 -left-4 w-72 h-72 bg-blue-300/30 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
                 <div className="absolute top-0 -right-4 w-72 h-72 bg-green-300/30 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-2000"></div>
-                <div className="relative">
+                <div className="relative bg-white rounded-2xl p-4 md:p-8 shadow-lg overflow-hidden">
                   <Image
-                    src="/placeholder.svg?height=400&width=600"
+                    src="/dashboard.jpg"
                     alt="Project Management Dashboard"
-                    width={600}
-                    height={400}
-                    className="rounded-lg shadow-2xl border border-gray-200"
+                    width={1920}
+                    height={1080}
+                    className="w-full rounded-xl transform hover:scale-105 transition-transform duration-300"
+                    priority
+                    quality={100}
+                    style={{ 
+                      maxHeight: '500px',
+                      objectFit: 'contain',
+                      imageRendering: 'crisp-edges'
+                    }}
+                    unoptimized
                   />
                 </div>
               </div>
@@ -302,69 +362,94 @@ export default function ProjectManagementLanding() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-20 bg-neutral">
+      <section id="pricing" className="py-16 lg:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
             variants={staggerContainer}
-            className="text-center mb-16"
+            className="text-center mb-12"
           >
-            <motion.h2 variants={fadeInUp} className="text-3xl lg:text-4xl font-bold text-blue-600 mb-4">
-              Choose the perfect plan
+            <motion.h2 variants={fadeInUp} className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+              Simple, Transparent Pricing
             </motion.h2>
-            <motion.p variants={fadeInUp} className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Start free and scale as you grow. No hidden fees, no surprises.
+            <motion.p variants={fadeInUp} className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Choose the perfect plan for your team's needs
             </motion.p>
+            
+            {/* Billing Toggle */}
+            <motion.div variants={fadeInUp} className="flex items-center justify-center mt-8 space-x-4">
+              <span className={`text-sm ${!isYearlyBilling ? 'text-blue-600 font-semibold' : 'text-gray-500'}`}>
+                Monthly
+              </span>
+              <button
+                onClick={() => setIsYearlyBilling(!isYearlyBilling)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                  isYearlyBilling ? 'bg-blue-600' : 'bg-gray-200'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    isYearlyBilling ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+              <span className={`text-sm ${isYearlyBilling ? 'text-blue-600 font-semibold' : 'text-gray-500'}`}>
+                Yearly <span className="text-green-500 font-medium">(Save 20%)</span>
+              </span>
+            </motion.div>
           </motion.div>
+
           <motion.div
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
             variants={staggerContainer}
-            className="grid md:grid-cols-3 gap-8"
+            className="grid grid-cols-1 md:grid-cols-3 gap-8"
           >
             {pricingPlans.map((plan, index) => (
-              <motion.div key={index} variants={fadeInUp} whileHover={{ y: -5 }} className="relative">
-                <Card
-                  className={`h-full bg-white ${plan.popular ? "border-accent shadow-lg scale-105" : "border-gray-200"} transition-all duration-300`}
-                >
-                  {plan.popular && (
-                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                      <Badge className="bg-accent text-white px-4 py-1">Most Popular</Badge>
-                    </div>
-                  )}
-                  <CardHeader className="text-center">
-                    <CardTitle className="text-2xl font-bold text-blue-600">{plan.name}</CardTitle>
-                    <CardDescription className="text-gray-600">{plan.description}</CardDescription>
-                    <div className="mt-4">
-                      <span className="text-4xl font-bold text-gray-900">{plan.price}</span>
-                      {plan.period && <span className="text-gray-600">{plan.period}</span>}
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-3 mb-6">
-                      {plan.features.map((feature, featureIndex) => (
-                        <li key={featureIndex} className="flex items-center">
-                          <CheckCircle className="h-5 w-5 text-accent mr-3" />
-                          <span className="text-gray-600">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                      <Button
-                        className={`w-full ${
-                          plan.popular
-                            ? "bg-accent hover:bg-accent/90 text-white"
-                            : "bg-blue-600 hover:bg-blue-700 text-white"
-                        }`}
-                      >
-                        {plan.cta}
-                      </Button>
-                    </motion.div>
-                  </CardContent>
-                </Card>
+              <motion.div
+                key={plan.name}
+                variants={fadeInUp}
+                className={`relative rounded-2xl border ${
+                  plan.popular ? 'border-blue-600 shadow-lg' : 'border-gray-200'
+                } p-8`}
+              >
+                {plan.popular && (
+                  <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-medium">
+                    Most Popular
+                  </span>
+                )}
+                <div className="text-center">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{plan.name}</h3>
+                  <p className="text-gray-500 mb-6">{plan.description}</p>
+                  <div className="mb-6">
+                    <span className="text-4xl font-bold text-gray-900">
+                      {isYearlyBilling ? plan.yearlyPrice : plan.price}
+                    </span>
+                    {plan.period && (
+                      <span className="text-gray-500 text-base ml-1">{plan.period}</span>
+                    )}
+                  </div>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button
+                      className={`w-full ${
+                        plan.popular ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-900 hover:bg-gray-800'
+                      } text-white`}
+                    >
+                      {plan.cta}
+                    </Button>
+                  </motion.div>
+                </div>
+                <ul className="mt-8 space-y-4">
+                  {plan.features.map((feature, featureIndex) => (
+                    <li key={featureIndex} className="flex items-center text-gray-600">
+                      <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
               </motion.div>
             ))}
           </motion.div>
@@ -372,56 +457,207 @@ export default function ProjectManagementLanding() {
       </section>
 
       {/* Testimonials Section */}
-      <section id="testimonials" className="py-20 bg-gray-50">
+      <section id="testimonials" className="py-16 lg:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
             variants={staggerContainer}
-            className="text-center mb-16"
+            className="text-center mb-12"
           >
-            <motion.h2 variants={fadeInUp} className="text-3xl lg:text-4xl font-bold text-blue-600 mb-4">
-              What our customers say
+            <motion.h2 variants={fadeInUp} className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+              Loved by Teams Worldwide
             </motion.h2>
-            <motion.p variants={fadeInUp} className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Join thousands of teams who trust ProjectFlow to manage their projects
+            <motion.p variants={fadeInUp} className="text-xl text-gray-600">
+              See what our customers have to say about ProjectFlow
             </motion.p>
           </motion.div>
+
           <motion.div
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
-            variants={fadeInUp}
-            className="max-w-4xl mx-auto"
+            variants={staggerContainer}
+            className="relative"
           >
-            <Card className="p-8 bg-white border-gray-200">
-              <CardContent className="text-center">
-                <div className="flex justify-center mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
-                  ))}
-                </div>
-                <blockquote className="text-xl text-gray-700 mb-6 italic">
-                  "{testimonials[currentTestimonial].quote}"
-                </blockquote>
-                <div>
-                  <p className="font-semibold text-blue-600">{testimonials[currentTestimonial].name}</p>
-                  <p className="text-gray-600">{testimonials[currentTestimonial].role}</p>
-                </div>
-              </CardContent>
-            </Card>
-            <div className="flex justify-center mt-6 space-x-2">
-              {testimonials.map((_, index) => (
+            <div className="overflow-hidden">
+              <motion.div
+                variants={fadeInUp}
+                className="relative w-full"
+              >
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentTestimonial}
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -50 }}
+                    transition={{ duration: 0.5 }}
+                    className="bg-neutral rounded-2xl p-8 md:p-12"
+                  >
+                    <div className="max-w-3xl mx-auto text-center">
+                      <Star className="h-12 w-12 text-yellow-400 mx-auto mb-6" />
+                      <blockquote>
+                        <p className="text-xl md:text-2xl text-gray-900 font-medium mb-8">
+                          "{testimonials[currentTestimonial].quote}"
+                        </p>
+                        <footer>
+                          <div className="font-semibold text-lg text-blue-600">
+                            {testimonials[currentTestimonial].name}
+                          </div>
+                          <div className="text-gray-600 mt-1">
+                            {testimonials[currentTestimonial].role}
+                          </div>
+                        </footer>
+                      </blockquote>
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+              </motion.div>
+            </div>
+
+            {/* Navigation Buttons */}
+            <div className="flex justify-center items-center mt-8 space-x-4">
+              <button
+                onClick={() => setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length)}
+                className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                aria-label="Previous testimonial"
+              >
+                <ChevronLeft className="h-6 w-6 text-gray-600" />
+              </button>
+              <div className="flex space-x-2">
+                {testimonials.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentTestimonial(index)}
+                    className={`w-2.5 h-2.5 rounded-full transition-colors ${
+                      currentTestimonial === index ? 'bg-blue-600' : 'bg-gray-300'
+                    }`}
+                    aria-label={`Go to testimonial ${index + 1}`}
+                  />
+                ))}
+              </div>
+              <button
+                onClick={() => setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)}
+                className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                aria-label="Next testimonial"
+              >
+                <ChevronRight className="h-6 w-6 text-gray-600" />
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section id="faq" className="py-16 lg:py-24 bg-neutral">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            variants={staggerContainer}
+            className="text-center mb-12"
+          >
+            <motion.h2 variants={fadeInUp} className="text-3xl lg:text-4xl font-bold text-blue-600 mb-4">
+              Frequently Asked Questions
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-xl text-gray-600">
+              Everything you need to know about ProjectFlow
+            </motion.p>
+          </motion.div>
+
+          <motion.div
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            variants={staggerContainer}
+            className="space-y-4"
+          >
+            {faqs.map((faq, index) => (
+              <motion.div
+                key={index}
+                variants={fadeInUp}
+                className="border border-gray-200 rounded-lg overflow-hidden"
+              >
                 <button
-                  key={index}
-                  onClick={() => setCurrentTestimonial(index)}
-                  className={`w-3 h-3 rounded-full transition-colors ${
-                    index === currentTestimonial ? "bg-blue-600" : "bg-gray-300"
+                  onClick={() => setExpandedFAQ(expandedFAQ === index ? null : index)}
+                  className="w-full flex justify-between items-center p-4 text-left hover:bg-gray-50 transition-colors"
+                >
+                  <span className="text-lg font-medium text-gray-900">{faq.question}</span>
+                  <ChevronDown
+                    className={`h-5 w-5 text-gray-500 transition-transform ${
+                      expandedFAQ === index ? 'transform rotate-180' : ''
+                    }`}
+                  />
+                </button>
+                <AnimatePresence>
+                  {expandedFAQ === index && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="p-4 bg-gray-50 text-gray-600 border-t border-gray-200">
+                        {faq.answer}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Newsletter Section */}
+      <section id="newsletter" className="py-16 lg:py-24 bg-neutral">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            variants={staggerContainer}
+            className="max-w-2xl mx-auto text-center"
+          >
+            <motion.h2 variants={fadeInUp} className="text-3xl lg:text-4xl font-bold text-blue-600 mb-4">
+              Stay Updated
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-xl text-gray-600 mb-8">
+              Get the latest updates and news about ProjectFlow
+            </motion.p>
+            <motion.form variants={fadeInUp} onSubmit={handleNewsletterSubmit} className="space-y-4">
+              <div className="relative">
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value)
+                    if (emailError) setEmailError("")
+                  }}
+                  className={`w-full px-4 py-3 rounded-lg ${
+                    emailError ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"
                   }`}
                 />
-              ))}
-            </div>
+                {emailError && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="absolute text-sm text-red-500 mt-1"
+                  >
+                    {emailError}
+                  </motion.p>
+                )}
+              </div>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                  Subscribe
+                </Button>
+              </motion.div>
+            </motion.form>
           </motion.div>
         </div>
       </section>
@@ -511,4 +747,4 @@ export default function ProjectManagementLanding() {
       </footer>
     </div>
   )
-}
+} 
