@@ -1,30 +1,97 @@
-# React landing page template
+# Modern SaaS Landing Page
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+A professional and modern SaaS landing page built with Next.js 15, TypeScript, and Tailwind CSS. This project showcases a responsive design with seamless navigation, authentication forms, and beautiful UI components.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/gojomagar14-9939s-projects/v0-react-landing-page-template)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/YTxAzRmGno7)
+## 🚀 Features
 
-## Overview
+- **Modern Tech Stack**: Built with Next.js 15, TypeScript, and Tailwind CSS
+- **Responsive Design**: Fully responsive layout that works on all devices
+- **Authentication Pages**: Professional sign-in and sign-up forms with validation
+- **UI Components**: Utilizes Radix UI components for accessible and beautiful interfaces
+- **Dark Mode Support**: Built-in dark mode support using next-themes
+- **Performance Optimized**: Optimized image loading and rendering
+- **Type-Safe**: Full TypeScript support for better development experience
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+## 📦 Prerequisites
 
-## Deployment
+- Node.js 18+ 
+- pnpm (recommended) or npm
 
-Your project is live at:
+## 🛠️ Installation
 
-**[https://vercel.com/gojomagar14-9939s-projects/v0-react-landing-page-template](https://vercel.com/gojomagar14-9939s-projects/v0-react-landing-page-template)**
+1. Clone the repository:
+```bash
+git clone [your-repo-url]
+cd saas-project-landing-page
+```
 
-## Build your app
+2. Install dependencies:
+```bash
+pnpm install
+# or
+npm install
+```
 
-Continue building your app on:
+3. Run the development server:
+```bash
+pnpm dev
+# or
+npm run dev
+```
 
-**[https://v0.dev/chat/projects/YTxAzRmGno7](https://v0.dev/chat/projects/YTxAzRmGno7)**
+4. Open [http://localhost:3000](http://localhost:3000) in your browser to see the result.
 
-## How It Works
+## 🏗️ Project Structure
 
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+```
+├── app/                  # Next.js 15 app directory
+├── components/          # Reusable UI components
+├── public/             # Static assets
+├── styles/            # Global styles and Tailwind CSS
+├── lib/               # Utility functions and shared logic
+├── hooks/             # Custom React hooks
+└── types/             # TypeScript type definitions
+```
+
+## 🔧 Configuration
+
+The project includes several configuration files:
+
+- `next.config.mjs` - Next.js configuration
+- `tailwind.config.ts` - Tailwind CSS configuration
+- `tsconfig.json` - TypeScript configuration
+- `postcss.config.mjs` - PostCSS configuration
+
+## 📚 Key Dependencies
+
+- **Framework**: Next.js 15
+- **Styling**: Tailwind CSS
+- **UI Components**: Radix UI
+- **Forms**: React Hook Form
+- **Validation**: Zod
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
+
+## 🚀 Deployment
+
+The application can be deployed using Vercel:
+
+```bash
+pnpm build
+# or
+npm run build
+```
+
+## 📝 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome! Feel free to check the issues page.
+
+## 📧 Contact
+
+ujwal-code10 - [magarujal6@gmail.com]
+
+Project Link: [https://v0-react-landing-page-template-ashen.vercel.app/]
